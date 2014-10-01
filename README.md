@@ -28,7 +28,7 @@ Use the escape key to quit at any time.
 Navigate across a minefield to safety! Your minesweeping instincts will tell you
 how many mines are "Near" you, which includes all the cardinal and ordinal
 squares around you. Upon finishing a game, the game will display your score and
-the seed.
+the seed (used to generate the minefield).
 
-The game can take the seed as an arguement, so it's possible to share a seed
-amongst friends!
+The game can take the seed as an arguement, so it is possible to share a seed
+amongst friends and play on the same map!
