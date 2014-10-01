@@ -23,7 +23,8 @@ Use the rogue keys (hjklyubn) to move around:
 * b: down-left
 * n: down-right
 
-Use the escape key to quit at any time.
+or simply use your number-pad if you have one. Use the escape key or 'q' to quit
+at any time.
 
 Navigate across a minefield to safety! Your minesweeping instincts will tell you
 how many mines are "Near" you, which includes all the cardinal and ordinal

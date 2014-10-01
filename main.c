@@ -13,7 +13,37 @@ Jonathan Tao.
 #define CHK(x) (mines[x/32]&(1<<(x%32)))
 #define CHKV(x) (visit[x/32]&(1<<(x%32)))
 
-const char* title="MINEHUNT";
+static const char* title="MINEHUNT";
+
+void find_near(short* near, uint32_t* mines, short posx, short posy)
+{
+	short j;
+	*near=0;
+	j=(posy-1)*16+(posx-1); /*Upper Left*/
+	if(posy!=0 && posx!=0 && CHK(j)) (*near)++;
+
+	j=(posy-1)*16+posx; /*Up*/
+	if(posy!=0 && CHK(j)) (*near)++;
+
+	j=(posy-1)*16+(posx+1); /*Upper Right*/
+	if(posy!=0 && posx!=15 && CHK(j)) (*near)++;
+
+	j=posy*16+(posx+1); /*Right*/
+	if(posx!=15 && CHK(j)) (*near)++;
+
+	j=(posy+1)*16+(posx+1); /*Lower Right*/
+	if(posy!=7 && posx!=15 && CHK(j)) (*near)++;
+
+	j=(posy+1)*16+posx; /*Down*/
+	if(posy!=7 && CHK(j)) (*near)++;
+
+	j=(posy+1)*16+(posx-1); /*Lower Left*/
+	if(posy!=7 && posx!=0 && CHK(j)) (*near)++;
+
+	j=posy*16+(posx-1); /*Left*/
+	if(posx!=0 && CHK(j)) (*near)++;
+} /*find_near()*/
+
 
 int main(int argc, char** argv)
 {
@@ -71,6 +101,7 @@ int main(int argc, char** argv)
 		mvhline(i+2,3,' '|A_STANDOUT,16);
 
 	mvaddch(9,18,ACS_CKBOARD);
+	find_near(&near,mines,posx,posy);
 	mvprintw(0,3,"Near %d",near);
 	mvprintw(0,11,"Score %d",score);
 	mvaddch(2,3,ACS_DIAMOND);
@@ -80,19 +111,18 @@ int main(int argc, char** argv)
 	{
 		key=getch();
 		mvaddch(posy+2,posx+3,'.');
-
 repoll:
 		switch(key)
 		{
-			case 'h': if(posx!=0) posx--; break;
-			case 'j': if(posy!=7) posy++; break;
-			case 'k': if(posy!=0) posy--; break;
-			case 'l': if(posx!=15) posx++; break;
-			case 'y':	if(posx!=0 && posy!=0) {posx--; posy--;} break;
-			case 'u':	if(posx!=15 && posy!=0) {posx++; posy--;} break;
-			case 'b':	if(posx!=0 && posy!=7) {posx--; posy++;} break;
-			case 'n':	if(posx!=15 && posy!=7) {posx++; posy++;} break;
-			case 27: state=1; break;
+			case '4': case 'h': if(posx!=0) posx--; break;
+			case '2': case 'j': if(posy!=7) posy++; break;
+			case '8': case 'k': if(posy!=0) posy--; break;
+			case '6': case 'l': if(posx!=15) posx++; break;
+			case '7': case 'y':	if(posx!=0 && posy!=0) {posx--; posy--;} break;
+			case '9': case 'u':	if(posx!=15 && posy!=0) {posx++; posy--;} break;
+			case '1': case 'b':	if(posx!=0 && posy!=7) {posx--; posy++;} break;
+			case '3': case 'n':	if(posx!=15 && posy!=7) {posx++; posy++;} break;
+			case 'q': case 27: state=1; break;
 			default:
 				mvaddch(posy+2,posx+3,ACS_DIAMOND);
 				key = getch();
@@ -134,31 +164,7 @@ repoll:
 			} /*if win*/
 			else
 			{
-				near=0;
-				j=(posy-1)*16+(posx-1); /*Upper Left*/
-				if(posy!=0 && posx!=0 && CHK(j)) near++;
-
-				j=(posy-1)*16+posx; /*Up*/
-				if(posy!=0 && CHK(j)) near++;
-
-				j=(posy-1)*16+(posx+1); /*Upper Right*/
-				if(posy!=0 && posx!=15 && CHK(j)) near++;
-
-				j=posy*16+(posx+1); /*Right*/
-				if(posx!=15 && CHK(j)) near++;
-
-				j=(posy+1)*16+(posx+1); /*Lower Right*/
-				if(posy!=7 && posx!=15 && CHK(j)) near++;
-
-				j=(posy+1)*16+posx; /*Down*/
-				if(posy!=7 && CHK(j)) near++;
-
-				j=(posy+1)*16+(posx-1); /*Lower Left*/
-				if(posy!=7 && posx!=0 && CHK(j)) near++;
-
-				j=posy*16+(posx-1); /*Left*/
-				if(posx!=0 && CHK(j)) near++;
-
+				find_near(&near,mines,posx,posy);	
 				mvprintw(0,3,"Near %d",near);
 				mvprintw(0,11,"Score %d",score);
 			} /*else continue play*/
