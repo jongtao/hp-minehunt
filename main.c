@@ -11,32 +11,33 @@ Jonathan Tao.
 #include "curses.h"
 
 #define CHK(x) (mines[x/32]&(1<<(x%32)))
+#define CHKV(x) (visit[x/32]&(1<<(x%32)))
 
 const char* title="MINEHUNT";
 
 int main(int argc, char** argv)
 {
-	short i, j, near, score, posx, posy;
-	char key, state;
-	uint32_t mines[4], seed;
-	memset(mines,0,32);
+	short i,j,near,score,posx,posy;
+	char key,state;
+	uint32_t mines[4],visit[4],seed;
 
-	posx = posy = 0;
-	near = state = 0;
-	key = 0;
-	score = 1;
+	memset(mines,0,32);
+	memset(visit,0,32);
+	posx=posy=near=0;
+	key=state=0;
+	score=1;
 
 	/*Generate*/
 	if(argc>1)
 	{
-		seed = atoi(argv[1]);
+		seed=atoi(argv[1]);
 		srand(seed);
-		printf("Seed:\t%d", seed);
+		printf("Seed:\t%d",seed);
 	} /*if a seed is provided*/
 	else
 	{
 		srand((unsigned)(long)&seed);
-		printf("Seed:\t%d", (unsigned)(long)&seed);
+		printf("Seed:\t%d",(unsigned)(long)&seed);
 	} /*else create seed from seed via "random" memory address*/
 
 	for(i=0;i<20;i++)
@@ -44,6 +45,8 @@ int main(int argc, char** argv)
 		do {j=rand()&0X7F;} while(j==0 || j==127 || CHK(j));
 		mines[j/32]|=(1<<(j%32));
 	} /* 20 mines to place*/
+
+	visit[0]=1; /*First space taken*/
 
 	/* Init ncurses*/
 	initscr();
@@ -62,10 +65,8 @@ int main(int argc, char** argv)
 
 	mvaddch(1,2,ACS_ULCORNER); mvaddch(1,19,ACS_URCORNER);
 	mvaddch(10,2,ACS_LLCORNER); mvaddch(10,19,ACS_LRCORNER);
-	mvhline(1,3,ACS_HLINE,16);
-	mvhline(10,3,ACS_HLINE,16);
-	mvvline(2,2,ACS_VLINE,8);
-	mvvline(2,19,ACS_VLINE,8);
+	mvhline(1,3,ACS_HLINE,16); mvhline(10,3,ACS_HLINE,16);
+	mvvline(2,2,ACS_VLINE,8); mvvline(2,19,ACS_VLINE,8);
 	for(i=0;i<8;i++)
 		mvhline(i+2,3,' '|A_STANDOUT,16);
 
@@ -99,9 +100,14 @@ repoll:
 		}; /*switch key*/
 
 		mvaddch(posy+2,posx+3,ACS_DIAMOND);
-		score++;
-
 		j = posy*16+posx;
+
+		if(!CHKV(j))
+		{
+			visit[j/32]|=(1<<(j%32));
+			score++;
+		} /*Score increases when square is cleared*/
+
 		if(state || mines[j/32]&(1<<(j%32)))
 		{
 			score--;
